@@ -1,413 +1,499 @@
-// components/TransmissionPage.js
-import React, { useState } from 'react';
+// components/TransmissionPage.jsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, RotateCcw, ArrowLeft, User, Heart, FileText } from 'lucide-react';
+import "./Styles/FormPages.css";
 
 const TransmissionPage = () => {
-  const navigate = useNavigate();
-  const [activeLegalHeir, setActiveLegalHeir] = useState('1');
-  const [formData, setFormData] = useState({
-    legalHeirs: {
-      1: {
-        personal: {
-          name: '', age: '', relation: '', fathersName: '', pan: '', demat: '',
-          address: '', pincode: '', city: '', state: '', mobile: '', email: ''
-        },
-        bank: {
-          accountNo: '', bankName: '', branch: '', ifsc: '', city: '', pincode: '', micr: ''
-        }
+  const [selectedHeir, setSelectedHeir] = useState(1);
+  const [selectedProcesses, setSelectedProcesses] = useState({ duplicate: false, transmission: false });
+  const [legalHeirs, setLegalHeirs] = useState({
+    1: [{
+      personal: {
+        name: '',
+        age: '',
+        relation: '',
+        fatherName: '',
+        pan: '',
+        demat: '',
+        address: '',
+        pincode: '',
+        city: '',
+        state: '',
+        mobile: '',
+        email: ''
       },
-      2: {
-        personal: {
-          name: '', age: '', relation: '', fathersName: '', pan: '', demat: '',
-          address: '', pincode: '', city: '', state: '', mobile: '', email: ''
-        },
-        bank: {
-          accountNo: '', bankName: '', branch: '', ifsc: '', city: '', pincode: '', micr: ''
-        }
-      },
-      3: {
-        personal: {
-          name: '', age: '', relation: '', fathersName: '', pan: '', demat: '',
-          address: '', pincode: '', city: '', state: '', mobile: '', email: ''
-        },
-        bank: {
-          accountNo: '', bankName: '', branch: '', ifsc: '', city: '', pincode: '', micr: ''
-        }
+      bank: {
+        accountNo: '',
+        bankName: '',
+        branch: '',
+        ifsc: '',
+        city: '',
+        pincode: '',
+        micr: ''
       }
-    },
-    shareholderInfo: {
-      sno: '', name: '', dateOfDemise: ''
-    },
-    otherInfo: {
-      formDate: '', folioNo: ''
-    },
-    company: {
-      name: '', address: ''
-    }
+    }],
+    2: [{
+      personal: {
+        name: '',
+        age: '',
+        relation: '',
+        fatherName: '',
+        pan: '',
+        demat: '',
+        address: '',
+        pincode: '',
+        city: '',
+        state: '',
+        mobile: '',
+        email: ''
+      },
+      bank: {
+        accountNo: '',
+        bankName: '',
+        branch: '',
+        ifsc: '',
+        city: '',
+        pincode: '',
+        micr: ''
+      }
+    }],
+    3: [{
+      personal: {
+        name: '',
+        age: '',
+        relation: '',
+        fatherName: '',
+        pan: '',
+        demat: '',
+        address: '',
+        pincode: '',
+        city: '',
+        state: '',
+        mobile: '',
+        email: ''
+      },
+      bank: {
+        accountNo: '',
+        bankName: '',
+        branch: '',
+        ifsc: '',
+        city: '',
+        pincode: '',
+        micr: ''
+      }
+    }]
   });
 
-  const [documents, setDocuments] = useState([
-    { id: 1, name: 'Authorization letter', selected: false },
-    { id: 2, name: 'Request letter', selected: false },
-    { id: 3, name: 'ISR 1', selected: false },
-    { id: 4, name: 'SH-13', selected: false },
-    { id: 5, name: 'ISR 5 - AnnexureC', selected: false },
-    { id: 6, name: 'AnnexureD - Affidavit L H 1', selected: false },
-    { id: 7, name: 'AnnexureD - Affidavit L H 2', selected: false },
-    { id: 8, name: 'AnnexureD - Affidavit L H 3', selected: false },
-    { id: 9, name: 'AnnexureE - Identity Form', selected: false },
-  ]);
+  const [shareholders, setShareholders] = useState([{
+    sno: 1,
+    name: '',
+    dateOfDemise: ''
+  }]);
 
-  const handleInputChange = (section, legalHeir, field, value) => {
-    setFormData(prev => ({
+  const [securities, setSecurities] = useState([{
+    srNo: 1,
+    certificateNo: '',
+    distinctiveFrom: '',
+    distinctiveTo: '',
+    shares: '',
+    totalShares: ''
+  }]);
+
+  const [otherInfo, setOtherInfo] = useState({
+    formDate: '',
+    folioNo: ''
+  });
+
+  const [company, setCompany] = useState({
+    name: '',
+    address: ''
+  });
+
+  const [rta, setRta] = useState({
+    name: '',
+    address: ''
+  });
+
+  const [documents, setDocuments] = useState({
+    authLetter: false,
+    requestLetter: false,
+    isr1: false,
+    sh13: false,
+    isr4: false,
+    formA: false,
+    formB: false,
+    isr5: false,
+    annexureD1: false,
+    annexureD2: false,
+    annexureD3: false,
+    annexureE: false,
+    selectAll: false
+  });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const processes = JSON.parse(localStorage.getItem('selectedProcesses') || '{}');
+    setSelectedProcesses(processes);
+  }, []);
+
+  const addHeirEntry = (heirNum) => {
+    setLegalHeirs(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [legalHeir]: {
-          ...prev[section][legalHeir],
-          [field]: value
-        }
-      }
+      [heirNum]: [...prev[heirNum], { ...prev[heirNum][0] }]
     }));
   };
 
-  const handleOtherInfoChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      otherInfo: { ...prev.otherInfo, [field]: value }
-    }));
+  const addShareholder = () => {
+    setShareholders(prev => [...prev, {
+      sno: prev.length + 1,
+      name: '',
+      dateOfDemise: ''
+    }]);
   };
 
-  const handleSelectAll = () => {
-    const allSelected = documents.every(doc => doc.selected);
-    setDocuments(prev => prev.map(doc => ({ ...doc, selected: !allSelected })));
+  const addSecurity = () => {
+    setSecurities(prev => [...prev, {
+      srNo: prev.length + 1,
+      certificateNo: '',
+      distinctiveFrom: '',
+      distinctiveTo: '',
+      shares: '',
+      totalShares: ''
+    }]);
   };
 
-  const handleDocumentToggle = (id) => {
-    setDocuments(prev => prev.map(doc => 
-      doc.id === id ? { ...doc, selected: !doc.selected } : doc
-    ));
+  const handleDocumentChange = (doc) => {
+    if (doc === 'selectAll') {
+      const newValue = !documents.selectAll;
+      const allDocs = {};
+      Object.keys(documents).forEach(key => {
+        allDocs[key] = newValue;
+      });
+      setDocuments(allDocs);
+    } else {
+      setDocuments(prev => {
+        const newState = { ...prev, [doc]: !prev[doc] };
+        // Check if all documents are selected
+        const allSelected = Object.keys(newState)
+          .filter(key => key !== 'selectAll')
+          .every(key => newState[key]);
+        return { ...newState, selectAll: allSelected };
+      });
+    }
   };
 
   const handleSubmit = () => {
-    console.log('Transmission Form Data:', formData);
-    console.log('Documents:', documents);
-    alert('Transmission application submitted successfully!');
+    console.log('Form data:', { legalHeirs, shareholders, securities, otherInfo, company, rta, documents });
+    alert('Form submitted successfully!');
   };
 
   const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset all data?')) {
-      window.location.reload();
+    window.location.reload();
+  };
+
+  const getDocumentList = () => {
+    if (selectedProcesses.duplicate && selectedProcesses.transmission) {
+      return [
+        { id: 1, name: 'Authorization Letter' },
+        { id: 2, name: 'Request Letter' },
+        { id: 3, name: 'ISR 1' },
+        { id: 4, name: 'SH-13' },
+        { id: 5, name: 'ISR 4' },
+        { id: 6, name: 'Form A' },
+        { id: 7, name: 'Form B Identity' },
+        { id: 8, name: 'ISR 5 - AnnexureC' },
+        { id: 9, name: 'AnnexureD - Affidavit L H 1' },
+        { id: 10, name: 'AnnexureD - Affidavit L H 2' },
+        { id: 11, name: 'AnnexureD - Affidavit L H 3' },
+        { id: 12, name: 'AnnexureE - Identity Form' }
+      ];
+    } else {
+      return [
+        { id: 1, name: 'Authorization Letter' },
+        { id: 2, name: 'Request Letter' },
+        { id: 3, name: 'ISR 1' },
+        { id: 4, name: 'SH-13' },
+        { id: 5, name: 'ISR 5 - AnnexureC' },
+        { id: 6, name: 'AnnexureD - Affidavit L H 1' },
+        { id: 7, name: 'AnnexureD - Affidavit L H 2' },
+        { id: 8, name: 'AnnexureD - Affidavit L H 3' },
+        { id: 9, name: 'AnnexureE - Identity Form' }
+      ];
     }
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-purple-50 to-pink-100">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <button
-            onClick={() => navigate('/')}
-            className="p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow"
+    <div className="form-container">
+      <div className="form-card">
+        <h1 className="form-title">Legal Heir Transmission</h1>
+        
+        <div className="selector-container">
+          <label>Select Legal Heir:</label>
+          <select 
+            value={selectedHeir}
+            onChange={(e) => setSelectedHeir(Number(e.target.value))}
+            className="shareholder-select"
           >
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Transmission of Shares Application
-          </h1>
-        </div>
-
-        {/* Legal Heir Selector */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex items-center gap-4 mb-4">
-            <Heart className="w-5 h-5 text-purple-600" />
-            <h2 className="text-lg font-semibold text-gray-800">Select Legal Heir</h2>
-          </div>
-          <select
-            value={activeLegalHeir}
-            onChange={(e) => setActiveLegalHeir(e.target.value)}
-            className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="1">Legal Heir 1</option>
-            <option value="2">Legal Heir 2</option>
-            <option value="3">Legal Heir 3</option>
+            <option value={1}>Legal Heir 1</option>
+            <option value={2}>Legal Heir 2</option>
+            <option value={3}>Legal Heir 3</option>
           </select>
         </div>
 
-        {/* Dynamic Form for Selected Legal Heir */}
-        <div className="space-y-6">
-          {/* Personal Details */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <User className="w-5 h-5 text-purple-600" />
-              Personal Details - Legal Heir {activeLegalHeir}
-            </h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              <input
-                type="text"
-                placeholder="Name"
-                value={formData.legalHeirs[activeLegalHeir].personal.name}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'name', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="number"
-                placeholder="Age"
-                value={formData.legalHeirs[activeLegalHeir].personal.age}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'age', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Relation with Shareholder"
-                value={formData.legalHeirs[activeLegalHeir].personal.relation}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'relation', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Father's Name"
-                value={formData.legalHeirs[activeLegalHeir].personal.fathersName}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'fathersName', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="PAN Card Number"
-                value={formData.legalHeirs[activeLegalHeir].personal.pan}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'pan', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Demat Account"
-                value={formData.legalHeirs[activeLegalHeir].personal.demat}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'demat', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Address"
-                value={formData.legalHeirs[activeLegalHeir].personal.address}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'address', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Pin Code"
-                value={formData.legalHeirs[activeLegalHeir].personal.pincode}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'pincode', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="City"
-                value={formData.legalHeirs[activeLegalHeir].personal.city}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'city', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="State"
-                value={formData.legalHeirs[activeLegalHeir].personal.state}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'state', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                value={formData.legalHeirs[activeLegalHeir].personal.mobile}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'mobile', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={formData.legalHeirs[activeLegalHeir].personal.email}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'email', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
+        {legalHeirs[selectedHeir].map((heir, index) => (
+          <div key={index} className="shareholder-section">
+            <div className="section-header">
+              <h2>Legal Heir {selectedHeir} - Entry {index + 1}</h2>
+              {index === legalHeirs[selectedHeir].length - 1 && (
+                <button 
+                  className="add-btn"
+                  onClick={() => addHeirEntry(selectedHeir)}
+                >
+                  +
+                </button>
+              )}
+            </div>
+
+            {/* Personal Details */}
+            <div className="form-section">
+              <h3>Personal Details</h3>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Name *</label>
+                  <input type="text" placeholder="Enter full name" />
+                </div>
+                <div className="form-group">
+                  <label>Age *</label>
+                  <input type="number" placeholder="Enter age" />
+                </div>
+                <div className="form-group">
+                  <label>Relation with Shareholder *</label>
+                  <input type="text" placeholder="Enter relation" />
+                </div>
+                <div className="form-group">
+                  <label>Father's Name *</label>
+                  <input type="text" placeholder="Enter father's name" />
+                </div>
+                <div className="form-group">
+                  <label>PAN Card Number *</label>
+                  <input type="text" placeholder="Enter PAN" />
+                </div>
+                <div className="form-group">
+                  <label>Demat Account *</label>
+                  <input type="text" placeholder="Enter Demat account" />
+                </div>
+                <div className="form-group full-width">
+                  <label>Address *</label>
+                  <textarea placeholder="Enter address" rows="2"></textarea>
+                </div>
+                <div className="form-group">
+                  <label>Pin Code *</label>
+                  <input type="text" placeholder="Enter pin code" />
+                </div>
+                <div className="form-group">
+                  <label>City *</label>
+                  <input type="text" placeholder="Enter city" />
+                </div>
+                <div className="form-group">
+                  <label>State *</label>
+                  <input type="text" placeholder="Enter state" />
+                </div>
+                <div className="form-group">
+                  <label>Mobile Number *</label>
+                  <input type="tel" placeholder="Enter mobile" />
+                </div>
+                <div className="form-group">
+                  <label>Email *</label>
+                  <input type="email" placeholder="Enter email" />
+                </div>
+              </div>
+            </div>
+
+            {/* Bank Details */}
+            <div className="form-section">
+              <h3>Bank Details</h3>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Account Number *</label>
+                  <input type="text" placeholder="Enter account number" />
+                </div>
+                <div className="form-group">
+                  <label>Bank Name *</label>
+                  <input type="text" placeholder="Enter bank name" />
+                </div>
+                <div className="form-group">
+                  <label>Branch *</label>
+                  <input type="text" placeholder="Enter branch" />
+                </div>
+                <div className="form-group">
+                  <label>IFSC Code *</label>
+                  <input type="text" placeholder="Enter IFSC code" />
+                </div>
+                <div className="form-group">
+                  <label>City *</label>
+                  <input type="text" placeholder="Enter city" />
+                </div>
+                <div className="form-group">
+                  <label>Pin Code *</label>
+                  <input type="text" placeholder="Enter pin code" />
+                </div>
+                <div className="form-group">
+                  <label>MICR Number *</label>
+                  <input type="text" placeholder="Enter MICR number" />
+                </div>
+              </div>
             </div>
           </div>
+        ))}
 
-          {/* Bank Details */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Bank Details</h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              <input
-                type="text"
-                placeholder="Account Number"
-                value={formData.legalHeirs[activeLegalHeir].bank.accountNo}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'accountNo', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Bank Name"
-                value={formData.legalHeirs[activeLegalHeir].bank.bankName}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'bankName', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Branch"
-                value={formData.legalHeirs[activeLegalHeir].bank.branch}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'branch', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="IFSC Code"
-                value={formData.legalHeirs[activeLegalHeir].bank.ifsc}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'ifsc', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="City"
-                value={formData.legalHeirs[activeLegalHeir].bank.city}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'city', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Pin Code"
-                value={formData.legalHeirs[activeLegalHeir].bank.pincode}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'pincode', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="MICR Number"
-                value={formData.legalHeirs[activeLegalHeir].bank.micr}
-                onChange={(e) => handleInputChange('legalHeirs', activeLegalHeir, 'micr', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
+        {/* Shareholders Information */}
+        <div className="form-section">
+          <div className="section-header">
+            <h3>Shareholders Information</h3>
+            <button className="add-btn" onClick={addShareholder}>+</button>
+          </div>
+          {shareholders.map((shareholder, index) => (
+            <div key={index} className="security-entry">
+              <h4>Shareholder {index + 1}</h4>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Name *</label>
+                  <input type="text" placeholder="Enter shareholder name" />
+                </div>
+                <div className="form-group">
+                  <label>Date of Demise *</label>
+                  <input type="date" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Shareholder Information */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Shareholder Information</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <input
-              type="text"
-              placeholder="S.No."
-              value={formData.shareholderInfo.sno}
-              onChange={(e) => setFormData(prev => ({ ...prev, shareholderInfo: { ...prev.shareholderInfo, sno: e.target.value } }))}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            <input
-              type="text"
-              placeholder="Name"
-              value={formData.shareholderInfo.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, shareholderInfo: { ...prev.shareholderInfo, name: e.target.value } }))}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            <input
-              type="date"
-              placeholder="Date of Demise"
-              value={formData.shareholderInfo.dateOfDemise}
-              onChange={(e) => setFormData(prev => ({ ...prev, shareholderInfo: { ...prev.shareholderInfo, dateOfDemise: e.target.value } }))}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
+          ))}
         </div>
 
         {/* Other Important Information */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Other Important Information</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <input
-              type="date"
-              placeholder="Form Date"
-              value={formData.otherInfo.formDate}
-              onChange={(e) => handleOtherInfoChange('formDate', e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            <input
-              type="text"
-              placeholder="Folio Number"
-              value={formData.otherInfo.folioNo}
-              onChange={(e) => handleOtherInfoChange('folioNo', e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
+        <div className="form-section">
+          <h3>Other Important Information</h3>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Form Date *</label>
+              <input type="date" />
+            </div>
+            <div className="form-group">
+              <label>Folio Number *</label>
+              <input type="text" placeholder="Enter folio number" />
+            </div>
           </div>
+        </div>
+
+        {/* Securities Information */}
+        <div className="form-section">
+          <div className="section-header">
+            <h3>Securities Information</h3>
+            <button className="add-btn" onClick={addSecurity}>+</button>
+          </div>
+          {securities.map((security, index) => (
+            <div key={index} className="security-entry">
+              <h4>Entry {index + 1}</h4>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Certificate Number *</label>
+                  <input type="text" placeholder="Enter certificate number" />
+                </div>
+                <div className="form-group">
+                  <label>Distinctive From *</label>
+                  <input type="text" placeholder="Enter from number" />
+                </div>
+                <div className="form-group">
+                  <label>Distinctive To *</label>
+                  <input type="text" placeholder="Enter to number" />
+                </div>
+                <div className="form-group">
+                  <label>Shares *</label>
+                  <input type="text" placeholder="Enter shares" />
+                </div>
+                <div className="form-group">
+                  <label>Total Shares *</label>
+                  <input type="text" placeholder="Enter total shares" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Company Information */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Company's Information</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Company Name"
-              value={formData.company.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, company: { ...prev.company, name: e.target.value } }))}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            <input
-              type="text"
-              placeholder="Company Address"
-              value={formData.company.address}
-              onChange={(e) => setFormData(prev => ({ ...prev, company: { ...prev.company, address: e.target.value } }))}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
+        <div className="form-section">
+          <h3>Company Information</h3>
+          <div className="form-grid">
+            <div className="form-group full-width">
+              <label>Company Name *</label>
+              <input type="text" placeholder="Enter company name" />
+            </div>
+            <div className="form-group full-width">
+              <label>Company Address *</label>
+              <textarea placeholder="Enter company address" rows="2"></textarea>
+            </div>
           </div>
         </div>
 
-        {/* Document Checklist */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-purple-600" />
-            Document Checklist
-          </h2>
-          
-          <div className="mb-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={documents.every(doc => doc.selected)}
-                onChange={handleSelectAll}
-                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-              />
-              <span className="text-sm font-medium text-gray-700">Select All</span>
-            </label>
-          </div>
-
-          <div className="grid gap-3">
-            {documents.map((doc) => (
-              <label key={doc.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={doc.selected}
-                  onChange={() => handleDocumentToggle(doc.id)}
-                  className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                />
-                <span className="text-sm text-gray-700">{doc.id}. {doc.name}</span>
-              </label>
-            ))}
+        {/* RTA Information */}
+        <div className="form-section">
+          <h3>RTA Information</h3>
+          <div className="form-grid">
+            <div className="form-group full-width">
+              <label>RTA Name *</label>
+              <input type="text" placeholder="Enter RTA name" />
+            </div>
+            <div className="form-group full-width">
+              <label>RTA Address *</label>
+              <textarea placeholder="Enter RTA address" rows="2"></textarea>
+            </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4 mt-8">
-          <button
-            onClick={handleSubmit}
-            className="flex-1 py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-          >
-            <Save className="w-5 h-5" />
-            Submit Transmission Application
-          </button>
-          <button
-            onClick={handleReset}
-            className="flex-1 py-3 px-6 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg font-semibold hover:from-gray-600 hover:to-gray-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-          >
-            <RotateCcw className="w-5 h-5" />
-            Reset Form
-          </button>
+        {/* Document List */}
+        <div className="form-section document-section">
+          <h3>Document List</h3>
+          <table className="document-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Document List</th>
+                <th>Select (Yes/No)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getDocumentList().map(doc => (
+                <tr key={doc.id}>
+                  <td>{doc.id}</td>
+                  <td>{doc.name}</td>
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      checked={documents[Object.keys(documents)[doc.id - 1]] || false}
+                      onChange={() => handleDocumentChange(Object.keys(documents)[doc.id - 1])}
+                    />
+                  </td>
+                </tr>
+              ))}
+              <tr className="select-all-row">
+                <td colSpan="2">Select All</td>
+                <td>
+                  <input 
+                    type="checkbox"
+                    checked={documents.selectAll}
+                    onChange={() => handleDocumentChange('selectAll')}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Form Actions */}
+        <div className="form-actions">
+          <button className="submit-btn" onClick={handleSubmit}>Submit</button>
+          <button className="reset-btn" onClick={handleReset}>Reset</button>
+          <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
         </div>
       </div>
     </div>

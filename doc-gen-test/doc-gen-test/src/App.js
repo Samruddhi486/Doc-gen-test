@@ -1,6 +1,5 @@
 // App.js
-// import React from "react";
-import React from "react";
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './Components/HomePage';
 import DuplicatePage from './Components/DuplicatePage';
@@ -10,7 +9,7 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/duplicate" element={<DuplicatePage />} />
